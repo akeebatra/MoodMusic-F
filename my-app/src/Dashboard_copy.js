@@ -5,6 +5,7 @@ import useAuth from './useAuth'
 import SpotifyWebApi from 'spotify-web-api-node'
 import SongPlayer from './SongPlayer'
 import TrackResult from './TrackResult'
+import SendVideo from './SendVideo'
 import {
   Container,
   Typography,
@@ -54,44 +55,122 @@ export default function Dashboard_copy({ code }) {
   const [topTracks, setTopTracks] = useState([])
   const accessToken = useAuth(code)
   const [playingSong, setPlayingSong] = useState()
+  const [showWebcam, setShowWebcam] = useState(false);
+  const [emotion, setEmotion] = useState({counter: 0});
+  
 
+  // function chooseTrack(track) {
+  //   setPlayingSong(track)
+  // }
   function chooseTrack(track) {
-    setPlayingSong(track)
+    setPlayingSong(track);
+    let tracks = JSON.parse(JSON.stringify(topTracks));
+    for (let i = 0; i < tracks.length; i++) {
+      if (tracks[i].uri === track.uri) {
+        tracks[i].played = true;
+        break
+      }
+    }
+    setTopTracks(tracks);
+    setShowWebcam(false);
   }
 
+  function fetchNextTrack() {
+    setShowWebcam(true);
+    setTimeout(() => {
+      setShowWebcam(false);
+
+      let tracks = JSON.parse(JSON.stringify(topTracks));
+      for (let i = 0; i < tracks.length; i++) {
+        if (tracks[i].mood === emotion.mood && !tracks[i].played) {
+          setPlayingSong(tracks[i]);
+         
+          tracks[i].played = true;
+          break;
+        }
+      }
+      setTopTracks(tracks)
+    }, 15000)
+  }
+
+  // useEffect(() => {
+  //   if (!accessToken) return
+
+  //   axios.post('http://127.0.0.1:8000/songs', {
+  //     accessToken,
+  //   }).then(res => {
+  //     console.log(res.data)
+
+  //     setTopTracks(res.data)
+  //     //   setTopTracks(res.data.map(track => {
+  //     //     const smallImage = track.album.images.reduce(
+  //     //       (smallest, image) => {
+  //     //         if (image.height < smallest.height) return image
+  //     //         return smallest
+  //     //       },
+  //     //       track.album.images[0]
+  //     //     )
+  //     //   return {
+  //     //     artist: track.artists[0].name,
+  //     //     title: track.name,
+  //     //     uri: track.uri,
+  //     //      albumUrl: smallImage.url,
+  //     //   }
+
+  //     // }))
+  //   })
+
+
+
+  // }, [accessToken])
+
   useEffect(() => {
-    if (!accessToken) return
-
-
-    axios.post('http://127.0.0.1:8000/songs', {
+    axios.post('http://localhost:8000/songs', {
       accessToken,
     }).then(res => {
-      console.log(res.data)
-
-      setTopTracks(res.data)
-      //   setTopTracks(res.data.map(track => {
-      //     const smallImage = track.album.images.reduce(
-      //       (smallest, image) => {
-      //         if (image.height < smallest.height) return image
-      //         return smallest
-      //       },
-      //       track.album.images[0]
-      //     )
-      //   return {
-      //     artist: track.artists[0].name,
-      //     title: track.name,
-      //     uri: track.uri,
-      //      albumUrl: smallImage.url,
-      //   }
-
-      // }))
+      let tracks = res.data.map(track => {
+        const smallImage = track.album.images.reduce(
+          (smallest, image) => {
+            if (image.height < smallest.height) return image
+            return smallest
+          },
+          track.album.images[0]
+        )
+        return {
+          artist: track.artists[0].name,
+          title: track.name,
+          uri: track.uri,
+          albumUrl: smallImage.url,
+          mood: track.mood === "aggressive" ? "angry" : track.mood === "calm" ? "neutral" : track.mood,
+          played: false,
+          name: track.name,
+          album: track.album.name,
+          id: track.id,
+          duration_ms: track.duration_ms
+        }
+      })
+      setTopTracks(
+        tracks
+      )
+      setShowWebcam(true);
     })
 
+  }, [accessToken]);
 
 
-  }, [accessToken])
-
-
+  useEffect(() => {
+    console.log(emotion)
+    let tracks = JSON.parse(JSON.stringify(topTracks));
+    for (let i = 0; i < tracks.length; i++) {
+      if (tracks[i].mood === emotion.mood && !tracks[i].played) {
+        setPlayingSong(tracks[i]);
+        
+        tracks[i].played = true;
+        break;
+      }
+    }
+    setTopTracks(tracks);
+  }, [emotion])
 
   return (
 
@@ -107,7 +186,7 @@ export default function Dashboard_copy({ code }) {
                 <Box style={{ padding: 10, textAlign: 'center' }}>
                   <img
                     alt="logo"
-
+                    src={require('/Users/akshay/Desktop/Project/my-app/src/spotify.png')}
                     style={{ width: '40%' }}
                   />
                 </Box>
@@ -126,7 +205,7 @@ export default function Dashboard_copy({ code }) {
                   }}
                   subheader={<li />}
                 >
-                  {['Happy', 'Sad', 'Calm', 'Angry'].map((mood) => (
+                  {['happy', 'sad', 'angry', 'neutral'].map((mood) => (
 
                     <li key={`section-${mood}`}>
                       <ul ul class="list-group">
@@ -171,10 +250,10 @@ export default function Dashboard_copy({ code }) {
                 {topTracks.map((track, idx) => {
                   return (
                     <TrackResult
-                    track={track}
-                    key={track.uri}
-                    chooseTrack={chooseTrack}
-                  />
+                      track={track}
+                      key={track.uri}
+                      chooseTrack={chooseTrack}
+                    />
                     // <Box key={topTracks.id}>
                     //   <ListItem
                     //     alignItems="flex-start"
@@ -211,12 +290,14 @@ export default function Dashboard_copy({ code }) {
 
             </Grid>
           </Grid>
-          
-         
+
+
         </Box>
         <div>
-          <SongPlayer  accessToken={accessToken} songUri={playingSong?.uri} />
+          <SongPlayer accessToken={accessToken} songUri={playingSong?.uri} fetchNextTrack={fetchNextTrack} />
         </div>
+  
+        {showWebcam ? <SendVideo setEmotion={setEmotion} setShowWebcam={setShowWebcam} /> : <></>}
       </Container>
     </React.Fragment>
 

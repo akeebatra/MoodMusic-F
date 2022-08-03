@@ -4,8 +4,8 @@ import { Typography, Grid, Button, Box } from '@mui/material';
 import { Drawer } from '@mui/material';
 import { styled } from '@mui/system';
 
-const AUTH_URL = 'https://accounts.spotify.com/authorize?client_id=acca5513fecb49e7bb8fcb5f886b04b7&response_type=code&redirect_uri=http://localhost:3000&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-top-read%20playlist-modify-public%20user-follow-read%20user-library-modify%20user-read-playback-state%20user-modify-playback-state'
-
+// const AUTH_URL = 'https://accounts.spotify.com/authorize?client_id=acca5513fecb49e7bb8fcb5f886b04b7&response_type=code&redirect_uri=http://localhost:3000&scope=streaming%20user-read-email%20user-top-read%20user-read-private%20user-library-read%20user-top-read%20playlist-modify-public%20user-follow-read%20user-library-modify%20user-read-playback-state%20user-modify-playback-state'
+const AUTH_URL = 'https://accounts.spotify.com/authorize?client_id=07e2883a7900460fa7ef32c9b36405d6&response_type=code&redirect_uri=http://localhost:3000&scope=streaming%20user-read-email%20user-read-private%20user-library-read%20user-top-read%20playlist-modify-public%20user-follow-read%20user-library-modify%20user-read-playback-state%20user-modify-playback-state'
 const MyComponent = styled('div')({
   color: 'darkslategray',
   backgroundColor: 'aliceblue',

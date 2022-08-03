@@ -1,6 +1,6 @@
-import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
+import { createTheme, responsiveFontSizes } from '@material-ui/core/styles';
 
-let darkTheme = createMuiTheme({
+let darkTheme = createTheme({
 	palette: {
 		type: 'dark',
 	},

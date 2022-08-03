@@ -13,34 +13,37 @@ export default function useAuth(code) {
         axios.post('http://127.0.0.1:8000/login',{
             code,
         }).then(res => {
-          console.log(res.data)
-            setAccessToken(res.data.accessToken)
-            setRefreshToken(res.data.refreshToken)
-            setExpiresIn(res.data.expiresIn)
+          console.log(res.data.access_token)
+            // setAccessToken(res.data.accessToken)
+            // setRefreshToken(res.data.refreshToken)
+            // setExpiresIn(res.data.expiresIn)
+            setAccessToken(res.data.access_token)
+            setRefreshToken(res.data.refresh_token)
+            setExpiresIn(res.data.expires_in)
             window.history.pushState({}, null, "/")
         }).catch(() => {
             window.location = "/"
         })
     }, [code])
 
-    // useEffect(() => {
-    //     if (!refreshToken || !expiresIn) return
-    //     const interval = setInterval(() => {
-    //       axios
-    //         .post("http://localhost:3001/refresh", {
-    //           refreshToken,
-    //         })
-    //         .then(res => {
-    //           setAccessToken(res.data.accessToken)
-    //           setExpiresIn(res.data.expiresIn)
-    //         })
-    //         .catch(() => {
-    //           window.location = "/"
-    //         })
-    //     }, (expiresIn - 60) * 1000)
+    useEffect(() => {
+        if (!refreshToken || !expiresIn) return
+        const interval = setInterval(() => {
+          axios
+            .post("http://localhost:3001/refresh", {
+              refreshToken,
+            })
+            .then(res => {
+              setAccessToken(res.data.accessToken)
+              setExpiresIn(res.data.expiresIn)
+            })
+            .catch(() => {
+              window.location = "/"
+            })
+        }, (expiresIn - 60) * 1000)
     
-    //     return () => clearInterval(interval)
-    //   }, [refreshToken, expiresIn])
+        return () => clearInterval(interval)
+      }, [refreshToken, expiresIn])
 
     return accessToken
 

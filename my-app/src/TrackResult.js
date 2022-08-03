@@ -47,14 +47,14 @@ export default function TrackResult({ track, chooseTrack }) {
         <ListItemAvatar>
           <Avatar
             alt="Remy Sharp"
-            src={track.album.images[2].url}
+            src={track.albumUrl}
           />
         </ListItemAvatar>
         <ListItemText
           primary={track.name}
           secondary={
             <React.Fragment>
-              {track.album.artists[0].name} · {track.album.name}
+              {track.artist} · {track.album}
             </React.Fragment>
           }
         />

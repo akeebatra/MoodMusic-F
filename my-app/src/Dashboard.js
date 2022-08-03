@@ -56,7 +56,7 @@ export default function Dashboard({ code }) {
 
 
 
-  }, [accessToken])
+  }, [accessToken,])
 
 
   return (
